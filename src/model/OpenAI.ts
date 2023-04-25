@@ -1,6 +1,6 @@
 import axios, { Axios } from "axios";
 
-export const OPENAI_URL = 'https://api.openai.com/v1';
+const OPENAI_URL = process.env.OPENAI_URL;
 const OPENAI_API_TOKEN = process.env.OPENAI_API_TOKEN;
 
 export enum Role {

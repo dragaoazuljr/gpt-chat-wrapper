@@ -48,7 +48,7 @@ export default function createClient(name: string) {
 			message.reply(models);
 		} else if (body.startsWith('/set-model')) {
 			const [command, type, model] = body.split(' ');
-			openAI.selectModel(model, type);
+			openAI.selectModel(model, type as unknown as 'chat' | 'completions');
 
 			message.reply(`Model ${model} escolhido.`);
 

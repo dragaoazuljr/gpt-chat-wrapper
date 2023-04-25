@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+// @ts-ignore
 import QRious from 'qrious';
 
 export default function Config() {
