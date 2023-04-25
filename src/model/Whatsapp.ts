@@ -1,4 +1,4 @@
-import { Client, LocalAuth } from 'whatsapp-web.js';
+import { Client, LocalAuth, NoAuth } from 'whatsapp-web.js';
 import { OpenAI, Role } from './OpenAI';
 import { readFile } from 'fs/promises';
 import { writeFile } from 'fs';
@@ -8,7 +8,8 @@ export default function createClient(name: string) {
 		puppeteer: {
 			args: ['--no-sandbox']
 		},
-		authStrategy: new LocalAuth({ clientId: name }),
+		//authStrategy: new LocalAuth({ clientId: name }),
+		authStrategy: new NoAuth(),
 	});
 	const openAI = new OpenAI();
 
