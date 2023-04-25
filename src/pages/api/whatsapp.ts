@@ -2,9 +2,9 @@ import createClient, { loadPersistedInfo } from "@/model/Whatsapp";
 
 export default async function handler(req: any, res: any) {
 	if (req.method === 'POST') {
-		const { apiKey, name } = JSON.parse(req.body);
+		const { name } = JSON.parse(req.body);
 
-		const client = createClient(name, apiKey);
+		const client = createClient(name);
 
 		client.on('qr', (qrcode) => {
 			res.json({ qrcode })

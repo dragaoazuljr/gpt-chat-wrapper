@@ -1,6 +1,7 @@
 import axios, { Axios } from "axios";
 
 export const OPENAI_URL = 'https://api.openai.com/v1';
+const OPENAI_API_TOKEN = process.env.OPENAI_API_TOKEN;
 
 export enum Role {
 	user = 'user',
@@ -12,6 +13,7 @@ export interface Message {
 	role: Role,
 	content: string,
 	name?: string,
+	chatId?: string,
 }
 
 export interface Chat {
@@ -44,7 +46,6 @@ export interface Permission {
 }
 
 export class OpenAI {
-	private apiKey: string;
 	private axios: Axios;
 
 	public messages: Message[];
@@ -52,29 +53,33 @@ export class OpenAI {
 	public model: string = 'ada'
 	public models: Model[] = [];
 
-	constructor(apiKey: string) {
-		this.apiKey = apiKey;
+	constructor() {
 		this.messages = [];
 		this.axios = axios.create({
 			headers: {
-				Authorization: `Bearer ${this.apiKey}`
+				Authorization: `Bearer ${OPENAI_API_TOKEN}`
 			},
 			transformResponse: [(data) => { return JSON.parse(data) }]
 		});
 	};
 
-	async makeChatCompletions(username: string, content: string, role?: Role) {
+	async makeChatCompletions(username: string, content: string, role?: Role, chatId?: string) {
 		const message: Message = {
 			role: role || Role.user,
 			content,
 			name: username,
+			chatId,
 		};
 
 		this.messages.push(message);
 
+		const chatSpecificMessages = this.messages
+			.filter(message => message.chatId === chatId)
+			.map(message => ({ ...message, chatId: undefined }));
+
 		const payload = {
 			model: this.chatModel,
-			messages: this.messages,
+			messages: chatSpecificMessages,
 			temperature: 0.7
 		};
 
@@ -83,10 +88,13 @@ export class OpenAI {
 
 		const chatReplyMessage: Message = {
 			role: Role.assistant,
-			content: chatReply || ''
+			content: chatReply || '',
+			chatId,
 		};
 
 		this.messages.push(chatReplyMessage);
+
+		console.log(this.messages);
 
 		return chatReply;
 	}
@@ -122,5 +130,13 @@ export class OpenAI {
 		} else if (type === 'completions') {
 			this.model = model;
 		}
+	}
+
+	clearMessages(chatId: string) {
+		this.messages = this.messages.filter(message => message.chatId != chatId);
+	}
+
+	clearAllMessages() {
+		this.messages = [];
 	}
 }

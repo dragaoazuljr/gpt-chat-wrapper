@@ -3,7 +3,6 @@ import QRious from 'qrious';
 
 export default function Config() {
 	const [name, setName] = useState('');
-	const [apiKey, setApiKey] = useState('');
 	const [list, setList] = useState([]);
 
 	useEffect(() => {
@@ -18,7 +17,7 @@ export default function Config() {
 	}, [])
 
 	const handleCreateClient = async () => {
-		const res = await fetch('/api/whatsapp', { method: 'POST', body: JSON.stringify({ name, apiKey }) });
+		const res = await fetch('/api/whatsapp', { method: 'POST', body: JSON.stringify({ name }) });
 		const { qrcode } = await res.json();
 
 		if (qrcode) {
@@ -39,8 +38,6 @@ export default function Config() {
 	return (
 		<div>
 			<h1>Config bot</h1>
-			<label htmlFor="openAIApiKey">Open AI API key</label>
-			<input id="openAIApiKey" type='text' onChange={(e) => setApiKey(e.target.value)} />
 			<label htmlFor="name">Name</label>
 			<input id="name" type='text' onChange={(e) => setName(e.target.value)} />
 			<button onClick={handleCreateClient}>Create Client</button>

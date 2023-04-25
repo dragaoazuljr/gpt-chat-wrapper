@@ -6,9 +6,10 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Roadmap
 
-- Create integration to Whatsapp
-- Create integration to OpenAI
-- Add commands functions
+- Create integration with Whatsapp ✅
+- Create integration with OpenAI ✅
+- Add commands functions ✅
+- Add Integration with Auto-gpt
 - Create analize pdf command
 - Create analize Youtube video command
 - Create analize webpage command
