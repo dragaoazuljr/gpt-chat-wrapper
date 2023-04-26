@@ -1,18 +1,16 @@
-import createClient, { loadPersistedInfo } from "@/model/Whatsapp";
+import WhatsappClient, { loadPersistedInfo } from "@/model/WhatsappClient";
 
 export default async function handler(req: any, res: any) {
 	if (req.method === 'POST') {
 		const { name } = JSON.parse(req.body);
 
-		const client = createClient(name);
+		const client = new WhatsappClient(name, res);
 
-		client.on('qr', (qrcode) => {
-			res.json({ qrcode })
-		});
+		console.log(client.client.info);
 
-		client.on('ready', () => res.status(200))
-
-		setTimeout(() => res.status(400).send({ error: 'generating qrcode' }), 10000);
+		client.client.on('qr', (code) => {
+			console.log(code);
+		})
 	} else if (req.method === 'GET') {
 		const info = await loadPersistedInfo();
 

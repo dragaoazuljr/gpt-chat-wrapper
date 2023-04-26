@@ -1,3 +1,4 @@
+import axiosHelper from "@/helpers/axios";
 import axios, { Axios } from "axios";
 
 const OPENAI_URL = process.env.OPENAI_URL;
@@ -55,12 +56,7 @@ export class OpenAI {
 
 	constructor() {
 		this.messages = [];
-		this.axios = axios.create({
-			headers: {
-				Authorization: `Bearer ${OPENAI_API_TOKEN}`
-			},
-			transformResponse: [(data) => { return JSON.parse(data) }]
-		});
+		this.axios = axiosHelper(OPENAI_API_TOKEN);
 	};
 
 	async makeChatCompletions(username: string, content: string, role?: Role, chatId?: string) {
