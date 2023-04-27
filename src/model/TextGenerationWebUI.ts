@@ -41,7 +41,7 @@ export class TextGenerationWebUi {
 
 	public messages: Message[] = [];
 	public payload: PromptPayload = {
-		max_new_tokens: 250,
+		max_new_tokens: 1000,
 		do_sample: true,
 		temperature: 1.3,
 		top_p: 0.1,
@@ -53,13 +53,13 @@ export class TextGenerationWebUi {
 		num_beams: 1,
 		penalty_alpha: 0,
 		length_penalty: 1,
-		early_stopping: false,
+		early_stopping: true,
 		seed: -1,
 		add_bos_token: true,
 		truncation_length: 2048,
 		ban_eos_token: false,
 		skip_special_tokens: true,
-		stopping_strings: [],
+		stopping_strings: ["\nYou"],
 		prompt: ''
 	}
 
@@ -70,24 +70,24 @@ export class TextGenerationWebUi {
 
 	async makeCompletion(message: string, username: string, chatId: string) {
 		const prompt = this.generatePrompt(message, username, chatId);
+
 		const payload = {
 			...this.payload,
 			prompt
 		}
 
-		const resp = await this.axios.post(`${WEBUI_URL}/generate`);
+		const resp = await this.axios.post(`${WEBUI_URL}/generate`, payload);
 
-		const replyMessage = resp.data?.results[0]?.text;
+		const replyMessage: string = resp.data?.results[0]?.text.replace("\n");
 
 		const chatReplyMessage: Message = {
 			role: Role.assistant,
 			content: replyMessage || '',
+			name: this.character.name,
 			chatId
 		}
 
 		this.messages.push(chatReplyMessage);
-
-		console.log(this.messages);
 
 		return replyMessage;
 	}
@@ -95,7 +95,7 @@ export class TextGenerationWebUi {
 	generatePrompt(content: string, username: string, chatId: string) {
 		const message: Message = {
 			role: Role.user,
-			name: username,
+			name: 'You',
 			content,
 			chatId,
 		}
@@ -106,6 +106,8 @@ export class TextGenerationWebUi {
 			.filter(m => m.chatId === chatId)
 			.map(m => `${m.name}: ${m.content}`)
 			.join('\n')
+
+		console.log(this.messages, chat)
 
 		const prompt = `${this.character.context}\n\n` +
 			`${this.character.example_dialogue}\n` +
@@ -140,3 +142,4 @@ export class TextGenerationWebUi {
 		this.character = character;
 	}
 }
+
