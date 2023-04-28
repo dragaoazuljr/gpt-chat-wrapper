@@ -78,7 +78,7 @@ export class TextGenerationWebUi {
 
 		const resp = await this.axios.post(`${WEBUI_URL}/generate`, payload);
 
-		const replyMessage: string = resp.data?.results[0]?.text.replace("\n");
+		const replyMessage: string = resp.data?.results[0]?.text.replace("\n", "");
 
 		const chatReplyMessage: Message = {
 			role: Role.assistant,
@@ -106,8 +106,6 @@ export class TextGenerationWebUi {
 			.filter(m => m.chatId === chatId)
 			.map(m => `${m.name}: ${m.content}`)
 			.join('\n')
-
-		console.log(this.messages, chat)
 
 		const prompt = `${this.character.context}\n\n` +
 			`${this.character.example_dialogue}\n` +
