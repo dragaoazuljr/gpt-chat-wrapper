@@ -33,6 +33,7 @@ export interface Character {
 	context: string,
 	greeting?: string,
 	example_dialogue: string;
+	language?: string;
 }
 
 export class TextGenerationWebUi {
@@ -59,7 +60,7 @@ export class TextGenerationWebUi {
 		truncation_length: 2048,
 		ban_eos_token: false,
 		skip_special_tokens: true,
-		stopping_strings: ["\nYou"],
+		stopping_strings: ["\nYou", "\nVocê"],
 		prompt: ''
 	}
 
@@ -68,8 +69,8 @@ export class TextGenerationWebUi {
 		this.axios = axiosHelper();
 	}
 
-	async makeCompletion(message: string, username: string, chatId: string) {
-		const prompt = this.generatePrompt(message, username, chatId);
+	async makeCompletion(message: string, username: string, chatId: string, messageId: string) {
+		const prompt = this.generatePrompt(message, username, chatId, messageId);
 
 		const payload = {
 			...this.payload,
@@ -80,22 +81,14 @@ export class TextGenerationWebUi {
 
 		const replyMessage: string = resp.data?.results[0]?.text.replace("\n", "");
 
-		const chatReplyMessage: Message = {
-			role: Role.assistant,
-			content: replyMessage || '',
-			name: this.character.name,
-			chatId
-		}
-
-		this.messages.push(chatReplyMessage);
-
 		return replyMessage;
 	}
 
-	generatePrompt(content: string, username: string, chatId: string) {
+	generatePrompt(content: string, username: string, chatId: string, messageId: string) {
 		const message: Message = {
+			id: messageId,
 			role: Role.user,
-			name: 'You',
+			name: this.character?.language === 'PT_BR' ? 'Você' : 'You',
 			content,
 			chatId,
 		}
@@ -121,6 +114,14 @@ export class TextGenerationWebUi {
 	}
 
 	async loadChar(name: string) {
+		const characters = await this.readCharsFromFile();
+
+		const char = characters.find(c => c.name === name) as Character;
+
+		return char
+	}
+
+	async readCharsFromFile(): Promise<Character[]> {
 		let file;
 
 		try {
@@ -131,13 +132,37 @@ export class TextGenerationWebUi {
 
 		const characters = JSON.parse(file) as Character[];
 
-		const char = characters.find(c => c.name === name) as Character;
-
-		return char
+		return characters;
 	}
 
 	changeCaracter(character: Character) {
 		this.character = character;
+	}
+
+	async listAvailableChars() {
+		const chars = await this.readCharsFromFile();
+
+		const replyMessage = chars?.map(char => `${char.name} - ${char.context}`).join('\n\n')
+
+		return replyMessage;
+	}
+
+	async selectCharacter(name: string) {
+		const char = await this.loadChar(name);
+		this.clearAllMessages();
+		this.changeCaracter(char);
+	}
+
+	async clearAllMessages() {
+		this.messages = [];
+	}
+
+	clearCharMessages(chatId: string) {
+		this.messages = this.messages.filter((m) => m.chatId !== chatId);
+	}
+
+	getSelectedCharName() {
+		return this.character.name;
 	}
 }
 

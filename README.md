@@ -9,8 +9,8 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 - Create integration with Whatsapp ✅
 - Create integration with OpenAI ✅
 - Add commands functions ✅
-- Add integration to text-generation-web-ui
-- Add way to AI reply to the reply messages
+- Add integration to text-generation-web-ui ✅ 
+- Add way to AI reply to the reply messages ✅ 
 - Add Integration with Auto-gpt
 - Create analize pdf command
 - Create analize Youtube video command

@@ -11,6 +11,7 @@ export enum Role {
 }
 
 export interface Message {
+	id: string,
 	role: Role,
 	content: string,
 	name?: string,
@@ -59,19 +60,20 @@ export class OpenAI {
 		this.axios = axiosHelper(OPENAI_API_TOKEN);
 	};
 
-	async makeChatCompletions(username: string, content: string, role?: Role, chatId?: string) {
+	async makeChatCompletions(username: string, content: string, role?: Role, chatId?: string, messageId: string) {
 		const message: Message = {
 			role: role || Role.user,
 			content,
 			name: username,
 			chatId,
+			id: messageId
 		};
 
 		this.messages.push(message);
 
 		const chatSpecificMessages = this.messages
 			.filter(message => message.chatId === chatId)
-			.map(message => ({ ...message, chatId: undefined }));
+			.map(message => ({ ...message, chatId: undefined, id: undefined }));
 
 		const payload = {
 			model: this.chatModel,
@@ -81,16 +83,6 @@ export class OpenAI {
 
 		const resp = await this.axios.post(`${OPENAI_URL}/chat/completions`, payload).catch(e => console.log(e));
 		const chatReply = resp?.data?.choices.map((c: any) => c?.message?.content).join("");
-
-		const chatReplyMessage: Message = {
-			role: Role.assistant,
-			content: chatReply || '',
-			chatId,
-		};
-
-		this.messages.push(chatReplyMessage);
-
-		console.log(this.messages);
 
 		return chatReply;
 	}
